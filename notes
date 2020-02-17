@@ -1,0 +1,17 @@
+Data to use:
+First iteration use 2016 boundaries
+Second iteration impute 2019 TPP using polling booths
+
+Before modelling:
+A few basic plots
+- Distribution of TPP
+- Scatter plot of grant $ against TPP
+
+Explain RDD:
+- Fuzzy RDD
+- Use Grant $ or binary choice (grants, no grants) as response
+- Pick 6 variables to use as controls, show there is no discontinuity at cut-off of 50% TPP
+
+Modelling:
+Fuzzy RDD, interpret coefficient of discontinuity
+Can justify causal impact

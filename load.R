@@ -3,6 +3,7 @@ library(rvest)
 library(stringr)
 library(eechidna)
 library(ggmap)
+library(sp)
 
 ####################################################################################
 # Scrape the locations where sports grants were allocated by government
@@ -48,6 +49,8 @@ grants_df <- data.frame(
   Round = rounds
 ) %>% mutate(Search_Address = paste(Organisation, State))
 
+save(grants_df, file = "grants_df.rda")
+
 ####################################################################################
 # Geocode locations using GoogleMaps API
 # You need to have an API from a Google cloud account (can get 12 month trial for free)
@@ -63,11 +66,30 @@ grants_geocoded_df <- grants_df %>%
   mutate_geocode(Search_Address) %>% 
   rename(Latitude = lat, Longitude = lon)
 
+# Manually fill in the NAs
+grants_na_geocode <- grants_geocoded_df %>% 
+  filter(is.na(Latitude))
+grants_na_geocode$Latitude <- c(-33.8413565,-33.6061916, -37.595907, -37.7260833, -34.9727729,
+  -34.9450696, -34.9196556, -34.9433813, -37.8273961, -41.1849933, -37.7844258, -38.0829467)
+grants_na_geocode$Longitude <- c(138.5768095, 135.741567, 140.3395327, 140.5915723,  138.5990716,
+  138.5104173, 138.4969033, 138.6468549, 140.7484311, 146.3349724, 145.131015, 144.3666039)
+
+# Join back for final geocoded grants
+grants_geocoded_final <- grants_geocoded_df %>% 
+  filter(!is.na(Latitude)) %>% 
+  bind_rows(grants_na_geocode)
 
 ####################################################################################
-# Allocate each grant to an electorate
+# Allocate each grant to an electorate using 2016 boundaries
 ####################################################################################
 
-####################################################################################
-# 
-####################################################################################
+# Load shapefile of 2016 electoral boundaries
+sF_2016 <- eechidna::sF_download("2016")
+
+# Create list of spatial points for grants, make format same as shapefile
+grants_spatial_points <- grants_geocoded_final %>% 
+  select(Latitude, Longitude) %>% 
+  sp::SpatialPoints()
+proj4string(grants_spatial_points) <- proj4string(sF_2016)
+
+# Write a loop to allocate each grant to an electorate
