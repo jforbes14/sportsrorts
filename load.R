@@ -1,9 +1,14 @@
+# Load libraries
 library(tidyverse)
 library(rvest)
 library(stringr)
 library(eechidna)
 library(ggmap)
 library(sp)
+library(rgeos)
+
+# Load functions from functions.R
+source("functions.R")
 
 ####################################################################################
 # Scrape the locations where sports grants were allocated by government
@@ -14,26 +19,6 @@ library(sp)
 webpage_text <- read_html("https://www.sportaus.gov.au/grants_and_funding/community_sport_infrastructure_grant_program/successful_grant_recipient_list") %>% 
   html_nodes('td') %>% 
   html_text()
-
-# Clean dollar amounts function
-clean_dollar <- function(str) {
-  return(
-    str %>% 
-      str_trim() %>% 
-      str_remove("[$]") %>% 
-      str_remove(",") %>% 
-      as.numeric()
-  )
-}
-
-# Clean organisation name function
-clean_name <- function(str) {
-  return(
-    str %>% 
-      str_trim() %>% 
-      str_remove("\r\n ")
-  )
-}
 
 # Extract list of organisation, amount, state, round
 orgs <- lapply(webpage_text[seq(1, length(webpage_text), 4)], clean_name) %>% unlist()
@@ -80,16 +65,35 @@ grants_geocoded_final <- grants_geocoded_df %>%
   bind_rows(grants_na_geocode)
 
 ####################################################################################
+# Temporary to write function
+# Remove when done 
+####################################################################################
+
+grants_temp <- grants_df %>% head(12)
+
+grants_temp$Latitude <- c(-33.8413565,-33.6061916, -37.595907, -37.7260833, -34.9727729,
+                                -34.9450696, -34.9196556, -34.9433813, -37.8273961, -41.1849933, -37.7844258, -38.0829467)
+grants_temp$Longitude <- c(138.5768095, 135.741567, 140.3395327, 140.5915723,  138.5990716,
+                                 138.5104173, 138.4969033, 138.6468549, 140.7484311, 146.3349724, 145.131015, 144.3666039)
+grants_temp$State <- "SA"
+
+####################################################################################
 # Allocate each grant to an electorate using 2016 boundaries
+
+# Substitute `grants_temp` with `grants_geocoded_final`
 ####################################################################################
 
 # Load shapefile of 2016 electoral boundaries
 sF_2016 <- eechidna::sF_download("2016")
 
 # Create list of spatial points for grants, make format same as shapefile
-grants_spatial_points <- grants_geocoded_final %>% 
+grants_spatial_points <- grants_temp %>% ### Replace here ###
   select(Latitude, Longitude) %>% 
   sp::SpatialPoints()
 proj4string(grants_spatial_points) <- proj4string(sF_2016)
+grants_spatial_ls <- list(dataframe = grants_temp %>% 
+                            select(Organisation, Amount, State, Round), 
+                          coords = grants_spatial_points)
 
-# Write a loop to allocate each grant to an electorate
+# Allocate each grant to an electorate
+allocate_test <- allocate_electorate(grants_spatial_ls, sF_2016)
