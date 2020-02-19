@@ -1,0 +1,39 @@
+---
+title: "Sports Rorts"
+author: "Jeremy Forbes"
+date: "19/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Uncovering the Sports Rorts bias in 2020 using stats
+
+In 2018, the Australian government announced a community sport infrastructure program, offering grants of up to $500,000 to fund local sporting clubs and organisations in the hope of boosting participation across the country. Any club wanting to apply for funding could submit an application stating how they'd use the infrastructure grant money, and why it was needed. The applications were then independently assessed by Sport Australia and given a score for the Sports Minister (Senator Bridget McKenzie) to use in having the final say on which grants would be approved.
+
+A recent audit on the funding scheme by the Australian National Audit Office (ANAO) found that "the award of grant funding was not informed by an appropriate assessment process and sound advice". It is obvious in their findings that the government, led by the Liberal-National Coalition, gave preference to grant applications from 'marginal' and 'targeted' electorates. 'Marginal' seats are those won by the Coalition in the 2016 election, and 'targeted' seats are electorates held by minor parties that the Coalition had identified as seats that could be won in 2019. 
+
+In summary - the Coalition appear to have adopted a strategic plan to win support in specific areas by approving more grants in those areas, to help them secure victory in the 2019 election.
+
+So I decided to see what I could uncover from conducting a statistical analysis myself using data freely available online. To do this, I would need three key datasets:
+(1) Information about each grant that was approved (location and $ amount),
+(2) Election results for each electorate from the previous election, and
+(3) Census data to control for other socio-demographic factors that might be at play.
+
+#### Obtaining the data
+
+Sports Australia published a list of the 684 approved grants in a table on their website (https://www.sportaus.gov.au/grants_and_funding/community_sport_infrastructure_grant_program/successful_grant_recipient_list), which I scraped using *rvest* and then fed to a Google Maps API to get the lat-long coordinates of each grant. This worked for all but 30 of the grants, which I then did some quick googling to see where they were located. 
+
+using statistical modelling to see what how grant money was allocated on the basis of each electorate's voting in the previous election. All done using the #eechidna #Rstats package and a Google Maps API.
+
+#### My approach
+
+
+#### Checking that my findings are robust
+
+#### Conclusion
+
+
+
