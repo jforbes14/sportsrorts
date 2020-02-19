@@ -33,6 +33,12 @@ df %>%
   geom_point() +
   geom_smooth(method = "lm")
 
+df %>% 
+  mutate(Amount_per_Grant = ifelse(Number_Grants == 0, 0, Amount/Number_Grants)) %>% 
+  ggplot(aes(x = ALP_Percent, y = Amount_per_Grant)) +
+  geom_point() +
+  geom_smooth()
+
 p1 <- df %>% 
   ggplot(aes(x = ALP_Percent, y = Amount)) +
   geom_point() +
@@ -49,8 +55,12 @@ grid.arrange(p1, p2, nrow =1)
 library(visreg)
 library(gam)
 library(mgcv)
-mod <- gam(Amount ~ s(ALP_Percent) + s(Population) + s(MedianAge) + 
+mod <- gam(Amount_per_Grant ~ s(ALP_Percent) + s(Population) + s(MedianAge) + 
     s(MedianPersonalIncome) + s(HighSchool) + s(Unemployed) + s(Owned) + s(Swing),
-  data = df)
+  data = df %>% 
+    mutate(Amount_per_Grant = ifelse(Number_Grants == 0, 0, Amount/Number_Grants)))
 visreg(mod)
+
+# Quantile-quantile plot
+ggplot(aes(sample = mod$residuals), data = NULL) + geom_qq() + geom_qq_line()
 
