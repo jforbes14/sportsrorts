@@ -152,6 +152,9 @@ df <- abs2016 %>%
   mutate(Number_Grants = replace_na(Number_Grants, 0),
          Amount = replace_na(Amount, 0))
 
+# Save
+save(df, file = "df.rda")
+
 ####################################################################################
 # See distribution of grants across electorates
 ####################################################################################
