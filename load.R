@@ -154,32 +154,3 @@ df <- abs2016 %>%
 
 # Save
 save(df, file = "df.rda")
-
-####################################################################################
-# See distribution of grants across electorates
-####################################################################################
-
-# Histogram of number of grants
-df %>% 
-  ggplot(aes(x = Number_Grants)) +
-  geom_histogram()
-
-# Histogram of grant amounts
-df %>% 
-  ggplot(aes(x = Amount)) +
-  geom_histogram()
-
-####################################################################################
-# Scatterplot of TPP against Grants
-####################################################################################
-
-df %>% 
-  ggplot(aes(x = ALP_Percent, y = Number_Grants)) +
-  geom_point() +
-  geom_smooth()
-
-
-df %>% 
-  ggplot(aes(x = ALP_Percent, y = Amount)) +
-  geom_point() +
-  geom_smooth()
