@@ -43,29 +43,29 @@ allocate_electorate <- function(points_ls, electorates_sf) {
     coord_state <- points_ls$dataframe$State[i]
     
     # Loop through electorates (in state if possible - for efficiency)
-    if (coord_state %in% unique(electorates_sf$state)) {
-      
-      # Get polygons in state only
-      state_electorates_sf <- subset(electorates_sf, state == coord_state)
-      
-      # Loop through electorates to assign
-      for (j in 1:length(state_electorates_sf@polygons)) {
-        
-        # Electorate name and polygon
-        electorate_name <- state_electorates_sf$elect_div[j]
-        electorate_poly <- subset(state_electorates_sf, elect_div == electorate_name)
-        
-        # Does it contain coord
-        electorate_contains = gContains(electorate_poly, coord)
-        
-        if (electorate_contains == TRUE) {
-          assign_df$electorate[i] = electorate_name
-          break
-        } 
-        
-      }
-      
-    } else { # Not assigned to state, must check all electorates
+    # if (coord_state %in% unique(electorates_sf$state)) {
+    #   
+    #   # Get polygons in state only
+    #   state_electorates_sf <- subset(electorates_sf, state == coord_state)
+    #   
+    #   # Loop through electorates to assign
+    #   for (j in 1:length(state_electorates_sf@polygons)) {
+    #     
+    #     # Electorate name and polygon
+    #     electorate_name <- state_electorates_sf$elect_div[j]
+    #     electorate_poly <- subset(state_electorates_sf, elect_div == electorate_name)
+    #     
+    #     # Does it contain coord
+    #     electorate_contains = gContains(electorate_poly, coord)
+    #     
+    #     if (electorate_contains == TRUE) {
+    #       assign_df$electorate[i] = electorate_name
+    #       break
+    #     } 
+    #     
+    #   }
+    #   
+    # } else { # Not assigned to state, must check all electorates
       
       # Loop through electorates to assign
       for (j in 1:length(electorates_sf@polygons)) {
@@ -82,7 +82,7 @@ allocate_electorate <- function(points_ls, electorates_sf) {
           break
         }
       }
-    }
+    # }
   }
   
   # assign_df <- assign_df %>% 
