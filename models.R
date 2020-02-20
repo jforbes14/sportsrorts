@@ -17,7 +17,7 @@ df %>%
 df %>% 
   ggplot(aes(x = ALP_Percent, y = Amount)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth(span = 0.5)
 
 ####################################################################################
 # Building a flexible regression model - GAM
