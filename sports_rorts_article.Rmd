@@ -24,9 +24,13 @@ So I decided to see what I could uncover from conducting a statistical analysis 
 
 #### Obtaining the data
 
-Sports Australia published a list of the 684 approved grants in a table on their website (https://www.sportaus.gov.au/grants_and_funding/community_sport_infrastructure_grant_program/successful_grant_recipient_list), which I scraped using *rvest* and then fed to a Google Maps API to get the lat-long coordinates of each grant. This worked for all but 30 of the grants, which I then did some quick googling to see where they were located. 
+Sports Australia published a list of the 684 approved grants in a table on their website (https://www.sportaus.gov.au/grants_and_funding/community_sport_infrastructure_grant_program/successful_grant_recipient_list), which I scraped using *rvest*. I then look this list and fed it to a Google Maps API to get the lat-long coordinates of each grant (using *ggmap* from https://github.com/dkahle/ggmap). This worked for almost all of the grants, so I then did some quick googling to see find where these organisations were located.
 
-using statistical modelling to see what how grant money was allocated on the basis of each electorate's voting in the previous election. All done using the #eechidna #Rstats package and a Google Maps API.
+To allocate each sporting organisation to its corresponding seat, I would need a map of electorates from the 2016 Federal election. Luckily, this is readily available in the `eechidna` package (which I maintain), along with the electoral voting data. I used some nifty functions from `sp` and `rgeos` to loop through the electorates and complete this allocation. 
+
+Next I aggregated the grants, so that the resultant dataset would hold the total grant $ amount for each of the 150 Federal electorates. This was then joined with the two-party preferred vote from the 2016 election, along with a collection of socio-demographic variables from the 2016 Census - also obtained from `eechidna`.
+
+Now with this dataset, it is time to get stuck into the analysis.
 
 #### My approach
 
@@ -36,4 +40,8 @@ using statistical modelling to see what how grant money was allocated on the bas
 #### Conclusion
 
 
+#### Junk
 
+The `eechidna` package makes it easy to access Australian election and Census data from 2001-2019, available on CRAN. I am an author of, and currently maintain `eechidna`.
+
+using statistical modelling to see what how grant money was allocated on the basis of each electorate's voting in the previous election. All done using the #eechidna #Rstats package and a Google Maps API.
