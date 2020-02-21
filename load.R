@@ -147,7 +147,7 @@ df <- abs2016 %>%
   select(DivisionNm, Population, MedianAge, MedianPersonalIncome, 
          HighSchool, Unemployed, Owned) %>% 
   left_join(tpp16 %>% 
-              select(DivisionNm, ALP_Percent, Swing), by = "DivisionNm") %>% 
+              select(DivisionNm, LNP_Percent, Swing), by = "DivisionNm") %>% 
   left_join(electorate_df, by = c("DivisionNm" = "Electorate")) %>% 
   mutate(Number_Grants = replace_na(Number_Grants, 0),
          Amount = replace_na(Amount, 0))
