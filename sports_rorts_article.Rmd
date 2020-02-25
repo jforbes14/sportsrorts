@@ -2,7 +2,9 @@
 title: "Sports Rorts"
 author: "Jeremy Forbes"
 date: "19/02/2020"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -129,7 +131,7 @@ All of the data collection, wrangling and analysis was conducted using `R`. For 
 
 #### About me
 
-Data scientist at KPMG, applied statistician, curios researcher and sports enthusiast.
+Data scientist at KPMG, applied statistician, curious researcher and sports enthusiast. Connect with me on LinkedIn.
 
 
 Check out my #medium debut on my analysis of the "Sports Rots" scandal - a statistical modelling to see how sporting grant money was allocated on the basis of previous election results, all done using the #eechidna #Rstats package and a Google Maps API.
