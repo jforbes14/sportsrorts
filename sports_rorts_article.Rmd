@@ -13,20 +13,24 @@ library(mgcv)
 load("df.rda")
 ```
 
-## Uncovering the Sports Rorts bias in 2020 using stats
+## Uncovering government bias using advanced statistical modelling
 
-In 2018, the Australian government announced a community sport infrastructure program, offering grants of up to $500,000 to fund local sporting clubs and organisations in the hope of boosting participation across the country. Any club wanting to apply for funding could submit an application stating how they'd use the infrastructure grant money, and why it was needed. The applications were then independently assessed by Sport Australia and given a score for the Sports Minister (Senator Bridget McKenzie) to use in having the final say on which grants would be approved.
+Uncovering Sports Rorts bias using advanced statistical modelling
 
-A recent audit on the funding scheme by the Australian National Audit Office (ANAO) found that "the award of grant funding was not informed by an appropriate assessment process and sound advice". Their findings imply that the government, led by the Liberal-National Coalition, gave preference to grant applications from 'marginal' and 'targeted' electorates. 'Marginal' seats are those won by the Coalition in the 2016 election, and 'targeted' seats are electorates held by minor parties that the Coalition had identified as seats that could be won in 2019. 
+In recent weeks, the Australian Liberal party has faced intense scrutiny for their allocation of grants in a community sport infrastructure program that was rolled out in the lead up to the 2019 federal election. Offering grants of up to $500,000 to local sporting organisations, the program was marketed as an intitiative to boost sporting participation across the country. Organisations had to submit an application which was independently assessed by Sport Australia and given a score. These scores were to be used by Sports Minister in deciding which grants would be approved.
 
-In summary - the Coalition are accused of having adopted a strategic plan to win support in specific areas by approving more grants in those areas, to help them secure victory in the 2019 election.
+An audit on the funding scheme was conducted by the Australian National Audit Office (ANAO) and implied that the government, led by the Liberal party, gave preference to grant applications from 'marginal' and 'targeted' electorates, rather than following the advice from Sport Australia. Essentially, the Liberal party are accused of having adopted a strategic plan to win support in specific electorates (seats) by approving more grants in those areas, to help them secure victory in the 2019 election.
 
-So I decided to see what I could uncover from conducting a statistical analysis myself using data freely available online. To do this, I would need three key datasets:
+As a data scientist, I thought that this would be a perfect problem to explore myself using publicly available information. My theory was that if electorates were in fact preferenced based on their previous voting behaviour in the previous election, then the Liberal party's strategy would be revealed by fitting appropriate statistical models. 
+
+To go ahead with this exploration, I would need to combine three key datasets:
 (1) Information about each grant that was approved (location and $ amount),
 (2) Election results for each electorate from the previous election, and
 (3) Census data to control for other socio-demographic factors that might be at play.
 
-With this data, I aim to see if I can find evidence to support or oppose these findings.
+With this information, I was confident I would be able to find evidence to support or oppose the accusations. Here's how I went about each step.
+
+(All steps of data collection, wrangling and analysis were done using R.)
 
 #### Obtaining the data
 
@@ -36,7 +40,7 @@ To allocate each sporting organisation to its corresponding seat, I would need a
 
 Next I aggregated the grants, so that the resultant dataset would hold the total grant $ amount for each of the 150 Federal electorates. This was then joined with the two-party preferred vote from the 2016 election, along with a collection of socio-demographic variables from the 2016 Census - also obtained from `eechidna`.
 
-Now with this dataset, it is time to get stuck into the analysis.
+Here's a snapshot of the resultant dataset.
 
 ```{r}
 df %>% 
@@ -44,10 +48,11 @@ df %>%
   head
 ```
 
+Now time to get stuck into the analysis.
 
-#### My approach
+#### A Statistical Modeling Approach
 
-What I'm really looking to uncover is the relationship between the percentage of votes in favour of the Liberal party in the 2016 election and the amount of grant money allocated, for each electorate. First, let's see what a scatterplot looks like with a linear regression line fitted.
+What I'm really looking to uncover is the relationship between the percentage of votes in favour of the Liberal party for each electorate in the 2016 election, and the amount of grant money allocated to that electorate. First, let's see what a scatterplot looks like with a linear regression line fitted.
 
 ```{r}
 df %>% 
@@ -59,7 +64,7 @@ df %>%
 
 There's some evidence here to suggest that electorates with stronger support for the Coalition were more likely to receive sports grant money. But really, its likely that if the Coalition did implement a targeted strategy in allocating grants, the relationship between these two variabls would not be linear. A strategy that gives the most money to seats that are the safest wouldn't be a very good one - because its highly unlikely that these seats would be vulnerable to changing hands at the 2019 election.
 
-So instead of fitting a linear regression line, let's plot a really flexible regression curve. For this I have chosen to use the non-parametric LOESS curve, which gives higher weighting to local data points to fit a smooth curve. This allows us to get a better picture of the relationship between the 2016 vote and grant amount, rather than imposing a linear restriction.
+So instead of fitting a linear regression line, let's plot a really flexible regression curve. For this I have chosen to use the non-parametric loess curve, which gives higher weighting to local data points to fit a smooth curve. This allows us to get a better picture of the relationship between the 2016 vote and grant amount, rather than imposing a linear restriction.
 
 ```{r}
 df %>% 
@@ -69,9 +74,11 @@ df %>%
   labs(x = "% of Votes for Coalition", y = "Total Grant Money ($)")
 ```
 
-Wow! From looking at the initial scatterplot, it was hard to see whether there were any patterns, but the LOESS curve reveals a pretty significant relationship. There is a clear spike in the amount of grant money given to electorates that were "marginal" Coalition seats in the 2016 election. "Marginal" Coalition seats are those that were won by the Coalition where the candidate received less than 56% of the vote. I think this plot itself is pretty convincing evidence of a deliberate strategy in allocating the grants.
+Wow! From looking at the initial scatterplot, the loess curve is revealing a pretty significant relationship. There is a clear spike in the amount of grant money given to electorates that were "marginal" Coalition seats in the 2016 election. "Marginal" Coalition seats are those that were won by the Coalition, but weren't won by a huge margin. I think this plot itself is pretty convincing evidence of a deliberate strategy in allocating the grants.
 
-But to take this another step further, I decided to fit a GAM (Generalized Additive Model) to model the grant amount as a function of the 2016 vote, Census characteristics of the electorates and the swing vote (the percentage point change in the vote from 2013 to 2016 elections for that seat). Each of these variables is included in the model as a smooth term, which are penalized regression splines - a type of non-parametric regression, similar to LOESS. By doing this, I am effectively controlling for the effects of these other variables, so that the effect of the vote itself can be identified. It is possible that once these other effects are accounted for, we no longer see a relationship between the vote and grant amounts.
+But to take this another step further, I decided to fit a GAM (Generalized Additive Model) to model the grant amount as a function of the 2016 vote, Census characteristics of the electorates and the swing vote (the percentage point change in the vote from 2013 to 2016 elections for that seat). Each of these variables is included in the model as a smooth term, which are penalized regression splines - a type of non-parametric regression, similar to loess, that allows for patterns in the data to reveal themselves. 
+
+By doing this, I am effectively controlling for the effects of these other variables, so that the effect of the vote itself can be identified. It is possible that once these other effects are accounted for, we no longer see a relationship between the vote and grant amounts.
 
 ```{r}
 mod <- gam(Amount ~ s(LNP_Percent) + s(Population) + s(MedianAge) + 
@@ -84,9 +91,11 @@ mod2 <- gam(Amount ~ s(Population) + s(MedianAge) +
   data = df)
 ```
 
-After accounting for these other variables, it can be clearly seen that there still is a spike in grant amount for marginal Coalition seats! Having a look at the p-values from the GAM regression output, there is significant evidence that the 2016 vote influenced the allocation of grant money across electorates (p = 0.002). The resultant model itself explains 46.3% of the deviance - which is a good result considering that the official aim of the grant scheme was set out to increase sport engagement Australia-wide, and the applications were scored by an independent body. 
+After accounting for these other variables, it can be clearly seen that there still is a spike in grant amount for marginal Coalition seats! Having a look at the p-values from the GAM regression output, there is significant evidence that the 2016 vote influenced the allocation of grant money across electorates (p = 0.002). The resultant model itself explains 46.3% of the deviance - which is a good fit considering that the official aim of the grant scheme was set out to increase sport engagement Australia-wide, and the applications were scored by an independent body. 
 
-I also fit a model omitting the voting data (both two-party preferred and swing vote), and compared the two models with a Chi-square test. The model including the election data was a significantly better fit (p = 0.000005). On this basis, the evidence of pork-barrelling is quite compelling.
+I also fit a model omitting the voting data (both two-party preferred and swing vote), and compared the two models with a Chi-square test. The model including the election data was a significantly better fit (p = 0.000005). On this basis, the evidence of a strategic bias is quite compelling.
+
+Now for some final robustness checks to ensure that my results are not dominated by outliers, and that the model assumptions are valid 
 
 #### Checking that my findings are robust
 
@@ -114,14 +123,13 @@ ggplot(aes(sample = mod$residuals), data = NULL) +
 
 #### Conclusion
 
-My statistical modelling approach very much aligns with the findings of the ANAO report - that the allocation of grant money appears to have been strongly influenced by voting behaviour from the previous election. This analysis provides empirical evidence that an underlying strategy was used by the Coalition to try and beef up support in the lead up to the 2019 election. But perhaps far more importantly, it was a lot of fun to look into!
+My statistical modelling approach provides empirical evidence that the Liberal party allocated sports grants on the basis of an underlying strategy to beef up support in the lead up to the 2019 election. But perhaps equally importantly, this analysis demonstrates how powerful insights can be found using publicly available data.
 
-All of the data collection, wrangling and analysis was conducted using `R`. For anyone interested in exploring Australian election and Census data, I highly recommend checking out the `eechidna` package. This package makes it easy to access Australian election and Census data from 2001-2019 (including maps), available on CRAN. I am an author of, and currently maintain `eechidna`.
+All of the data collection, wrangling and analysis was conducted using `R`. For anyone interested in exploring Australian election and Census data, I highly recommend checking out the `eechidna` package. This package makes it easy to access Australian election and Census data from 2001-2019 (including maps), available on CRAN. I am an author and maintainer of `eechidna`.
 
 #### About me
 
-Data science and analytics consultant at KPMG
+Data scientist at KPMG, applied statistician, curios researcher and sports enthusiast.
 
-If anyone would like to collaborate in analyses on this 
 
 Check out my #medium debut on my analysis of the "Sports Rots" scandal - a statistical modelling to see how sporting grant money was allocated on the basis of previous election results, all done using the #eechidna #Rstats package and a Google Maps API.
