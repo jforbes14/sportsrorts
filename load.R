@@ -132,6 +132,9 @@ grants_electorates_df <- grants_in_electorates %>%
     corrected_points_electorates
   )
 
+# Save
+save(grants_electorates_df, file = "grants_electorates_df.rda")
+
 ####################################################################################
 # Create dataframe that holds electorates, grant information and some socio-demographics 
 ####################################################################################

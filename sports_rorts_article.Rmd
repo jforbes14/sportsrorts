@@ -17,9 +17,9 @@ load("df.rda")
 
 ## Sports Rorts - Uncovering Government Bias with Statistical Modelling
 
-You can run, but you can't hide (from statistics). The Australian Liberal party is finding this out the hard way.
+You can run, but you can't hide (from statistics). The Australian Liberal party is about to find this out the hard way.
 
-In recent weeks, the Liberal party has been accused of using $100M of sporting grants to gain votes in the lead up to the 2019 election. As a data scientist, I believe there's only one way to find out if this is true - by crunching the numbers. And so, I set out to see what can be discovered with publicly available data relating to the "Sports Rorts" scandal.
+In recent weeks, the Liberal party has been accused of using $100M of sporting grants to gain votes in the lead up to the 2019 election. As a data scientist, I believe there's only one way to find out if this is true - by crunching the numbers. And so, I set out to see what we could learn from publicly available data relating to the "Sports Rorts" scandal.
 
 My thinking is that if the Liberal party allocated grants to electorates on the basis of their voting behaviour, then this strategy would be revealed with an appropriate statistical model.
 
@@ -57,6 +57,10 @@ Here's a snapshot of the resultant dataset.
 ```{r}
 df %>% 
   select(-Number_Grants) %>% 
+  rename("TotalGrantAmount" = Amount,
+    LiberalVote = LNP_Percent,
+    Electorate = DivisionNm) %>% 
+  select(Electorate, TotalGrantAmount, LiberalVote, Swing, everything()) %>% 
   head
 ```
 
@@ -71,7 +75,8 @@ df %>%
   ggplot(aes(x = LNP_Percent, y = Amount)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(x = "% of Votes for Liberal party", y = "Total Grant Money ($)")
+  scale_x_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(x = "Votes for the Liberal party (2016)", y = "Total Grant Money ($)")
 ```
 
 There's some evidence here to suggest that electorates with stronger support for the Liberal party were more likely to receive sports grant money. But really, its likely that if the Liberal party did implement a targeted strategy, the relationship between these two variables would not be linear. A strategy that gives the most money to regions that are the safest wouldn't be a very good one - because its highly unlikely that safe Liberal electorates would be vulnerable to changing hands at the 2019 election.
@@ -83,7 +88,8 @@ df %>%
   ggplot(aes(x = LNP_Percent, y = Amount)) +
   geom_point() +
   geom_smooth(span = 0.5) +
-  labs(x = "% of Votes for Liberal party", y = "Total Grant Money ($)")
+  scale_x_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(x = "Votes for the Liberal party (2016)", y = "Total Grant Money ($)")
 ```
 
 Wow! The loess curve reveals a pretty significant relationship - one that was not obvious from inspecting the initial scatterplot. 
@@ -97,7 +103,8 @@ mod <- gam(Amount ~ s(LNP_Percent) + s(Population) + s(MedianAge) +
     s(MedianPersonalIncome) + s(HighSchool) + s(Unemployed) + s(Owned) + s(Swing),
   data = df)
 visreg(mod, "LNP_Percent", alpha = 0.05, gg = T) +
-  labs(x = "% of Votes for Liberal party", y = "Fitted Model - Total Grant Money ($)")
+  scale_x_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(x = "Votes for the Liberal party (2016)", y = "Total Grant Money ($)")
 
 mod2 <- gam(Amount ~ s(Population) + s(MedianAge) + 
     s(MedianPersonalIncome) + s(HighSchool) + s(Unemployed) + s(Owned),
@@ -110,9 +117,23 @@ Finally, to check that my findings are robust to outliers, I re-estimate the mod
 
 #### In conclusion
 
-My statistical model provides empirical evidence that the Liberal party did allocate grants with a biased strategy in order to consolidate support for the 2019 election. The data shows that marginal Liberal electorates were targeted by the government and received more grant funds as a result. 
+My statistical model provides empirical evidence that the Liberal party used sports grants to try win votes in the 2019 election. The data clearly shows that marginal Liberal electorates were targeted by the government, and received more grant funds as a result. 
 
-While this analysis provides illuminating insight into Australian politics, it also demonstrates how publicly available data can be used to uncover powerful insights.
+While this analysis is extremely interesting from a political perspective, it also demonstrates how publicly available data can be used to generate powerful insights. In the age of fake
 
 All of the data collection, wrangling and analysis was conducted using `R`. For anyone interested in exploring Australian election and census data, I highly recommend checking out the `eechidna` package (of which I am an author and maintainer). This package makes it easy to access Australian election and census data from 2001-2019 (including maps) and is available on CRAN.
+
+```{r}
+library(ggthemes)
+nat_map16 <- nat_map_download(2016)
+nat_data16 <- nat_data_download(2016) %>% 
+  left_join(df %>% mutate(elect_div = DivisionNm))
+
+ggplot(data = NULL) +
+  geom_map(aes(map_id=id), data=nat_data16, map=nat_map16, col = "grey50", fill = "grey95") +
+  geom_point(aes(x = grants_electorates_df$Longitude, y = grants_electorates_df$Latitude), alpha = 0.3, size = 2, col = "darkgreen") +
+  guides(size = F) +
+  expand_limits(x=nat_map16$long, y=nat_map16$lat) + 
+  theme_map() + coord_equal()
+```
 
